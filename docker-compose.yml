@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  app:
+    build: ./app/
+    # container_name: appcontainer
+    depends_on:
+      - db
+    volumes:
+      - C:\Users\Admin\Desktop\db_lab1\app:/app
+  db:
+    image: postgres
+    # container_name: dbcontainer
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: znodata
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/app/var/lib/postgresql/data/
+
+volumes:
+  pgdata:
