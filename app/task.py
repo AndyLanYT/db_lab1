@@ -72,8 +72,6 @@ while tries:
                     values = (row[outid], row[birth], row[sextypename], row[regname], mark(row[engBall100]), row[engTestStatus] != 'null', 2019)
                     cur.execute(insert, values)
 
-                    # conn.commit()
-
             cur.execute('SELECT COUNT(outID) FROM tbl_ZNO WHERE year=2021')
             count = cur.fetchone()[0]
 	    
@@ -112,7 +110,7 @@ while tries:
     
     except psycopg2.OperationalError as err:
         tries -= 1
-        print('Operational error')
+        print('OperationalError')
         # print(err)
         time.sleep(1.5)
     
