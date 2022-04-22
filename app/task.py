@@ -43,14 +43,19 @@ while tries:
     try:
         conn = psycopg2.connect(dbname='znodata', user='postgres', password='password', host='db')
 
+        print('Connected!!')
+
         with conn:
             cur = conn.cursor()
 
-            # cur.execute('DROP TABLE IF EXISTS tbl_ZNO')
             cur.execute(create)
+
+            print('Table was created!')
 
             cur.execute('SELECT COUNT(outID) FROM tbl_ZNO WHERE year=2019')
             count = cur.fetchone()[0]
+
+            print(count)
 
             start = time.time()
 
@@ -68,12 +73,19 @@ while tries:
                 for _ in range(count):
                     next(reader)
                 
-                for row in reader:
+                for idx, row in enumerate(reader):
                     values = (row[outid], row[birth], row[sextypename], row[regname], mark(row[engBall100]), row[engTestStatus] != 'null', 2019)
                     cur.execute(insert, values)
 
+                    if idx % 1000 == 0:
+                        conn.commit()
+                
+                conn.commit()
+
             cur.execute('SELECT COUNT(outID) FROM tbl_ZNO WHERE year=2021')
             count = cur.fetchone()[0]
+
+            print(count)
 	    
             with open(ZNO2021, 'r', encoding='utf-8-sig') as csvfile:
                 reader = csv.reader(csvfile, delimiter=';')
@@ -89,13 +101,21 @@ while tries:
                 for _ in range(count):
                     next(reader)
                 
-                for row in reader:
+                for idx, row in enumerate(reader):
                     values = (row[outid], row[birth], row[sextypename], row[regname], mark(row[engBall100]), row[engTestStatus] != 'null', 2021)
                     cur.execute(insert, values)
 
+                    if idx % 1000 == 0:
+                        conn.commit()
+                    
+                conn.commit()
+
+            
+            print('All data successfuly inserted')
+
         with open('execution time.txt', 'w') as timefile:
             timefile.write(f'Execution time: {time.time() - start}')
-            print(time.time() - start)
+            print(f'Execution time: {time.time() - start}')
 
         cur.execute(query)
 
@@ -105,6 +125,8 @@ while tries:
 
             for row in cur:
                 writer.writerow([str(el) for el in row])
+        
+        print('Created file ZNOdata.csv with statistics')
         
         tries = 0
     
